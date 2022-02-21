@@ -1,0 +1,32 @@
+{
+  "name": "qq-robot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "ts-node ./bin/www",
+    "dev": "nodemon -e ts --exec ts-node app.ts",
+    "build": "tsc",
+    "server": "ts-node app.ts"
+  },
+  "dependencies": {
+    "cookie-parser": "^1.4.6",
+    "crypto": "^1.0.1",
+    "crypto-ts": "^1.0.2",
+    "ejs": "^3.1.6",
+    "express": "^4.17.3",
+    "oicq": "^2.2.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://gitee.com/caishuxueqianliu/qq-robot.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/express": "^4.17.13",
+    "@types/node": "^17.0.19",
+    "ts-node": "^10.5.0"
+  }
+}
