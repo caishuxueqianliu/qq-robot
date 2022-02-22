@@ -23,18 +23,14 @@ module.exports = {
     },
     // 测试账号
     accountTest: {
-        uin: '470290171',
-        pwd: 'lh1015lh'
+
     },
     // 正式账号
     account: {
-        // uin: 470290171,
-        // pwd: 'lh1015lh'
+
         uin: 972253775,
         pwd: 'lh972253775'
-        // uin: '1991477833',
+        // uin: 1991477833,
         // pwd: 'lh1015'
-    },
-    // 哔哩哔哩upid
-    upId: 17918548
+    }
 }
