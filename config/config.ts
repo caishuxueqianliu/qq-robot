@@ -16,19 +16,23 @@ module.exports = {
             ka: false,
             no: true //不发送每日任务
         },
-        "群号2": {
+        "548566146": {
             ka: false,
         }
     },
     // 测试账号
     accountTest: {
-        uin: '972253775',
-        pwd: 'lh972253775'
+        uin: '470290171',
+        pwd: 'lh1015lh'
     },
     // 正式账号
     account: {
-        uin: '972253775',
+        // uin: 470290171,
+        // pwd: 'lh1015lh'
+        uin: 972253775,
         pwd: 'lh972253775'
+        // uin: '1991477833',
+        // pwd: 'lh1015'
     },
     // 哔哩哔哩upid
     upId: 17918548
