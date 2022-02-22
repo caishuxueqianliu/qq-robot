@@ -27,10 +27,5 @@ module.exports = {
     },
     // 正式账号
     account: {
-
-        uin: 972253775,
-        pwd: 'lh972253775'
-        // uin: 1991477833,
-        // pwd: 'lh1015'
     }
 }
