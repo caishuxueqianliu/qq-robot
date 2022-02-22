@@ -49,11 +49,11 @@ client.on("system.login.captcha", () => {
 // 监听信息
 client.on("message", (data:any) => {
     // 私聊小助手时
-    if (data.message_type == "private") {
-        setTimeout(() => {
-            defaultMessage(data)
-        }, 0)
-    }
+    // if (data.message_type == "private") {
+    //     setTimeout(() => {
+    //         defaultMessage(data)
+    //     }, 0)
+    // }
 
     if (qunList[data.group_id]) {
         // @小助手时处理

@@ -18,6 +18,7 @@ module.exports = {
         },
         "548566146": {
             ka: false,
+            no: true //不发送每日任务
         }
     },
     // 测试账号
