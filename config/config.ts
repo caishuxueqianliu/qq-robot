@@ -13,7 +13,9 @@ module.exports = {
     },
     // TODO 填自己的小号
     account: {
-        uin: 1991477833,
-        pwd: 'lh1015'
+        // uin: 1991477833,
+        // pwd: 'lh1015'
+        uin: 972253775,
+        pwd: 'lh972253775'
     }
 }
