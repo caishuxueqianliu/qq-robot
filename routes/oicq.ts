@@ -154,14 +154,15 @@ client.on("notice", (data:any) => console.log(data));
  * @param text
  */
  async function messageProcess1(data:any, text:string) {
-    let str = text.replace(/^\s*|\s*$/g,"");
+    let str
+    if(text.includes('指令')){
+     str = text.replace('指令','')
+        handleMsg.test(client, data,str)
+        return
+    }
+     str = text.replace(/^\s*|\s*$/g,"");
+
     switch (str) {
-        case "fw":
-            handleMsg.fw(client, data)
-            break
-        case "呼叫fw":
-            handleMsg.hjfw(client,data)
-            break
         case "早啊":
         case "早安":
         case "早":
@@ -228,7 +229,6 @@ client.on("notice", (data:any) => console.log(data));
                 })
 
 
-
                 return str
 
             })
@@ -252,7 +252,8 @@ client.on("notice", (data:any) => console.log(data));
             ])
             break
         default:
-            client.sendGroupMsg(data.group_id, '嘤嘤嘤～ 今天也是充满希望的一天～')
+
+           client.sendGroupMsg(data.group_id, '嘤嘤嘤～ 今天也是充满希望的一天～')
             break
     }
 }
