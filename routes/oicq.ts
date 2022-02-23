@@ -1,22 +1,16 @@
-import {Console} from "inspector";
-
 const express = require('express');
 const router = express.Router();
 const cryto = require('crypto')
 const oicq = require("oicq")
 const zaoCi = require('../config/zao')
-const kuaCi = require('../config/kua')
 const defaultConfig = require('../config/config');
-import {Router, Request, Response, NextFunction} from 'express';
-import {Sendable} from "oicq/lib/message";
-const request = require('request')
+import { Request, Response, NextFunction} from 'express';
 const cheerio = require('cheerio');
 const Iconv = require('iconv-lite');
 const rp = require('request-promise');
-
-// 图片配置
-const xianList =
-    defaultConfig.xianList
+const Log = require('../models/log')
+const getIp = require('../utils/getIp')
+const handleMsg = require('../handleMsg/index')
 // 群配置
 const qunList =
     defaultConfig.qunList
@@ -29,17 +23,19 @@ const {
 
 const password_md5 = cryto.createHash('md5').update(pwd).digest('hex')
 const config = {
-    platform: 1, //登陆类型 1手机 2平板 3手表(不支持部分群事件)
+    platform: 3, //登陆类型 1手机 2平板 3手表(不支持部分群事件)
     log_level: "info", //日志级别，有trace,debug,info,warn,error,fatal,off
-   // log_level: "off", //日志级别，有trace,debug,info,warn,error,fatal,off
-    kickoff: false, //被挤下线是否在3秒后反挤对方
+    kickoff: true, //被挤下线是否在3秒后反挤对方
     ignore_self: true, //群聊是否无视自己的发言
 }
 const client = oicq.createClient(uin, config);
 client.login(password_md5)
-client.on("system.login.slider", (res:any) => {
 
-    process.stdin.once("data", (input) => {
+/**
+ * 滑动验证码
+ */
+client.on("system.login.slider", (res:any) => {
+    process.stdin.once("data", (input:string) => {
         client.submitSlider(input) //提交短信验证码
     })
 })
@@ -54,7 +50,9 @@ client.on("system.login.error", (e:any)=> console.log(e))
 //     });
 // });
 
-// 监听信息
+/**
+ * 监听信息
+ */
 client.on("message", (data:any) => {
     console.log(data.message)
     // 私聊小助手时
@@ -63,28 +61,40 @@ client.on("message", (data:any) => {
     //         defaultMessage(data)
     //     }, 0)
     // }
-
-    if (qunList[data.group_id]) {
-        // @小助手时处理
+    // 逆天邪神群消息处理
+    if (qunList[data.group_id] && data.group_id == Object.keys(qunList)[0]) {
+        // @小助手时处理 注意当前 代码只支持 @小助手 写在前面
        if (data.message[0].type == "at" && data.message[0].qq == uin) {
-            //    // 处理消息
            let text = data.message.length>1 ? data.message[1].text : ' '
             setTimeout(() => {
                 messageProcess(data, text)
             }, 0)
       }
-    //
    }
-});
+
+   // 打包小助手群消息处理
+    else if (qunList[data.group_id] && data.group_id == Object.keys(qunList)[1]) {
+        // @小助手时处理 注意当前 代码只支持 @小助手 写在前面
+        if (data.message[0].type == "at" && data.message[0].qq == uin) {
+            let text = data.message.length > 1 ? data.message[1].text : ' '
+            setTimeout(() => {
+                messageProcess1(data, text)
+            }, 0)
+        }
+    }
+})
 client.on("request", (data:any) => console.log(data));
 client.on("notice", (data:any) => console.log(data));
 
 
-
-// 消息处理函数
+/**
+ * 逆天邪神聊接收回复处理
+ * @param data
+ * @param text
+ */
  async function messageProcess(data:any, text:string) {
-    text = text.replace(/^\s*|\s*$/g,"");
-    switch (text) {
+    let str = text.replace(/^\s*|\s*$/g,"");
+    switch (str) {
         case "早啊":
         case "早安":
         case "早":
@@ -133,31 +143,160 @@ client.on("notice", (data:any) => console.log(data));
 
             break
         default:
-            client.sendGroupMsg(data.group_id, [ {type:"at",qq:data.sender.user_id},{type:'text',text:'\n' +'目前支持的功能:' + '\n' +
-                '1: @我 早 | 早安 | 早啊' + '\n' +
-                '2: @我 更了么 | 更了吗  '}]
-            )
+            client.sendGroupMsg(data.group_id, '嘤嘤嘤～ 今天也是充满希望的一天～')
             break
     }
 }
-router.get('/', function (req:Request, res:Response, next:NextFunction) {
-    res.send('respond with a resource');
-});
+
+/**
+ * 打包小助手群聊接收回复处理
+ * @param data
+ * @param text
+ */
+ async function messageProcess1(data:any, text:string) {
+    let str = text.replace(/^\s*|\s*$/g,"");
+    switch (str) {
+        case "fw":
+            handleMsg.fw(client, data)
+            break
+        case "呼叫fw":
+            handleMsg.hjfw(client,data)
+            break
+        case "早啊":
+        case "早安":
+        case "早":
+            const text = zaoCi[getRandomInt(100)]
+            client.sendGroupMsg(data.group_id, [
+                {type:"at",qq:data.sender.user_id},
+                {type:'text',text:'\n'  +  text}
+            ])
+            break
+        case "更了么":
+        case "更了吗":
+            try {
+                const method:string = 'GET'
+                const options = {
+                    url: 'http://book.zongheng.com/book/408586.html',
+                    method,
+                    encoding: null,
+                    headers: method == 'POST' ? {} : {
+                        'User-Agent': 'Mozilla/5.0',
+                    }
+                };
+                const htmlString = await rp(options)
+                const body = Iconv.decode(htmlString, 'utf-8').toString()
+                let $ = cheerio.load(body, {
+                    ignoreWhitespace: true
+                })
+                const t1 = $('.book-new-chapter>h4').text()
+                const tit =  $('.tit>a').text()
+                let time = $('.time').text()
+                let timeArr = time.split('·')
+                let timeStr1 = timeArr[1].replace('\n','').replace(' ','')
+                let timeStr2 = timeArr[2].replace('\n','').replace(' ','')
+                client.sendGroupMsg(data.group_id,[
+                    {type:"at",qq:data.sender.user_id},
+                    {type:'text',text:'\n'},
+                    {type:'text',text:t1 + ': '},
+                    {type:'text',text:tit + '\n'},
+                    {type:'text',text:'最近更新: '+ timeStr1 +'\n'},
+                    {type:'text',text:timeStr2},
+                ])
+
+            }
+            catch (e) {
+                client.sendGroupMsg(data.group_id,e)
+            }
+
+            break
+        case "查询":
+            const logs = await Log.findAll()
+            if(!logs.length){
+                client.sendGroupMsg(data.group_id, [
+                    {type:"at",qq:data.sender.user_id},
+                    {type:'text',text:'\n'  +  '当前log表为空！'}
+                ])
+                return
+            }
 
 
-// 处理对话
-function defaultMessage(data:any) {
-    // let text = data.message[0].data.text ? data.message[0].data.text : ''
-    // let sex = data.sender.sex == "male" ? '靓仔' : '靓妹'
-    console.log(data.user_id)
-    // if (true) {
-    client.sendPrivateMsg(data.user_id, `呜呜呜～小可爱再见呀！\n [CQ:image,cache=0,file=]`)
+            let handleLogs = logs.map((item:any,index:number)=>{
+                let str =     JSON.stringify( {
+                    index,
+                    '访问者ip':item.ip.replace('::ffff:',''),
+                    '访问时间':new Date(item.createdAt).toLocaleString()
+                })
 
-  //  client.sendPrivateMsg(data.user_id, '嘤嘤嘤～ 今天也是充满希望的一天～')
-    // }
+
+
+                return str
+
+            })
+            handleLogs = handleLogs.join('\n')
+            client.sendGroupMsg(data.group_id, [
+                {type:"at",qq:data.sender.user_id},
+                {type:'text',text:'\n'  +  handleLogs}
+            ])
+            break
+        case "清空":
+            // 截断表格
+            let s = await Log.destroy({
+                truncate: true
+            });
+            if(s == 0) {
+                s = '清空log表成功！'
+            }
+            client.sendGroupMsg(830448115, [
+                {type:"at",qq:470290171},
+                {type:'text',text:'\n' +  s}
+            ])
+            break
+        default:
+            client.sendGroupMsg(data.group_id, '嘤嘤嘤～ 今天也是充满希望的一天～')
+            break
+    }
 }
-// 随机取一句话
+
+
+
+/**
+ * 处理私聊
+ * @param data
+ */
+function defaultMessage(data:any) {
+ client.sendPrivateMsg(data.user_id, '嘤嘤嘤～ 今天也是充满希望的一天～')
+}
+
+/**
+ * 随机取一句话
+ * @param number
+ */
 function getRandomInt(number:number) {
     return Math.floor(Math.random() * number)
 }
+
+/**
+ * 访问主页通过机器人提示
+ */
+
+router.get('/', async function (req:Request, res:Response, next:NextFunction) {
+
+    try {
+        const ip = getIp.getClientIp(req)
+        await Log.create({
+            ip
+        })
+        client.sendGroupMsg(830448115, [
+            {type:"at",qq:470290171},
+            {type:'text',text:'\n'  +  'ip: ' + ip.replace('::ffff:','') + '访问了你的主页！'}
+        ])
+        res.send()
+    }
+    catch (e) {
+        res.send()
+    }
+
+
+});
+
 module.exports = router;
