@@ -155,9 +155,35 @@ client.on("notice", (data:any) => console.log(data));
  */
  async function messageProcess1(data:any, text:string) {
     let str
-    if(text.includes('指令')){
+    text = text.replace(/^\s*|\s*$/g,"");
+    if(text.includes('指令pull')){
+        str = text.replace('指令pull','')
+        handleMsg.pull(client, data,str)
+        return
+    }
+    else if(text.includes('指令npm')){
+        str = text.replace('指令npm','')
+        handleMsg.npm(client, data,str)
+        return
+    }
+    else if(text.includes('指令build')){
+        str = text.replace('指令build','')
+        handleMsg.build(client, data,str)
+        return
+    }
+    else if(text.includes('指令clone_server')){
+        str = text.replace('指令clone_server','')
+        handleMsg.clone_server(client, data,str)
+        return
+    }
+    else if(text.includes('指令clone_client')){
+        str = text.replace('指令clone_client','')
+        handleMsg.clone_client(client, data,str)
+        return
+    }
+    else if(text.includes('指令')){
      str = text.replace('指令','')
-        handleMsg.test(client, data,str)
+        handleMsg.custom(client, data,str)
         return
     }
      str = text.replace(/^\s*|\s*$/g,"");
