@@ -12,7 +12,7 @@ const rp = require('request-promise');
 const Log = require('../models/log')
 const getIp = require('../utils/getIp')
 const handleMsg = require('../handleMsg/index')
-
+const handle = require('../handleMsg/handleBuild')
 // 群配置
 const qunList =
     defaultConfig.qunList
@@ -45,15 +45,15 @@ client.on("system.login.slider", (res:any) => {
 
 client.on("system.online", () => {
     console.log("Logged in!")
-    const Gfss = new oicq.Gfs(client,830448115)
-    Gfss.dir('/',0,100).then((res:any)=>{
-        console.log(res)
-        Gfss.download( 'a9bfcce8-75b8-45a7-b61a-e6742b21f52f').then((res:any)=>{console.log(res)}).catch((err:any)=>{
-            console.log(err)
-        })
-    }).catch((err:any)=>{
-        console.log(err)
-    })
+    // var Gfss = new oicq.Gfs(client,830448115)
+    // Gfss.dir('/',0,100).then((res:any)=>{
+    //     console.log(res)
+    //     Gfss.download( 'a9bfcce8-75b8-45a7-b61a-e6742b21f52f').then((res:any)=>{console.log(res)}).catch((err:any)=>{
+    //         console.log(err)
+    //     })
+    // }).catch((err:any)=>{
+    //     console.log(err)
+    // })
     }
 )
 client.on("system.login.error", (e:any)=> console.log(e))
@@ -204,56 +204,16 @@ client.on("notice", (data:any) => console.log(data));
         handleMsg.custom(client, data,str)
         return
     }
+    else if(text.includes('build')){
+        str = text.replace('build','')
+        str = str.replace(/^\s*|\s*$/g,"");
+        handle.getUrl(client, data,str)
+
+    }
+
      str = text.replace(/^\s*|\s*$/g,"");
 
     switch (str) {
-        case "早啊":
-        case "早安":
-        case "早":
-            const text = zaoCi[getRandomInt(100)]
-            client.sendGroupMsg(data.group_id, [
-                {type:"at",qq:data.sender.user_id},
-                {type:'text',text:'\n'  +  text}
-            ])
-            break
-        case "更了么":
-        case "更了吗":
-            try {
-                const method:string = 'GET'
-                const options = {
-                    url: 'http://book.zongheng.com/book/408586.html',
-                    method,
-                    encoding: null,
-                    headers: method == 'POST' ? {} : {
-                        'User-Agent': 'Mozilla/5.0',
-                    }
-                };
-                const htmlString = await rp(options)
-                const body = Iconv.decode(htmlString, 'utf-8').toString()
-                let $ = cheerio.load(body, {
-                    ignoreWhitespace: true
-                })
-                const t1 = $('.book-new-chapter>h4').text()
-                const tit =  $('.tit>a').text()
-                let time = $('.time').text()
-                let timeArr = time.split('·')
-                let timeStr1 = timeArr[1].replace('\n','').replace(' ','')
-                let timeStr2 = timeArr[2].replace('\n','').replace(' ','')
-                client.sendGroupMsg(data.group_id,[
-                    {type:"at",qq:data.sender.user_id},
-                    {type:'text',text:'\n'},
-                    {type:'text',text:t1 + ': '},
-                    {type:'text',text:tit + '\n'},
-                    {type:'text',text:'最近更新: '+ timeStr1 +'\n'},
-                    {type:'text',text:timeStr2},
-                ])
-
-            }
-            catch (e) {
-                client.sendGroupMsg(data.group_id,e)
-            }
-
-            break
         case "查询":
             const logs = await Log.findAll()
             if(!logs.length){
@@ -295,21 +255,8 @@ client.on("notice", (data:any) => console.log(data));
                 {type:'text',text:'\n' +  s}
             ])
             break
+
         default:
-            try{
-                const Gfss = new oicq.Gfs(client,830448115)
-                Gfss.dir('/',0,100).then((res:any)=>{
-                    client.sendGroupMsg(data.group_id ,res)
-                }).catch((err:any)=>{
-                    client.sendGroupMsg(data.group_id ,err)
-                })
-            }
-            catch(e)
-        {
-            client.sendGroupMsg(data.group_id ,e)
-        }
-
-
 
 
             break
