@@ -1,3 +1,4 @@
+import {Gfs,Client} from "oicq";
 const express = require('express');
 const router = express.Router();
 const cryto = require('crypto')
@@ -11,6 +12,7 @@ const rp = require('request-promise');
 const Log = require('../models/log')
 const getIp = require('../utils/getIp')
 const handleMsg = require('../handleMsg/index')
+
 // 群配置
 const qunList =
     defaultConfig.qunList
@@ -41,8 +43,23 @@ client.on("system.login.slider", (res:any) => {
 })
 
 
-client.on("system.online", () => console.log("Logged in!"))
+client.on("system.online", () => {
+    console.log("Logged in!")
+    const Gfss = new oicq.Gfs(client,830448115)
+    Gfss.dir('/',0,100).then((res:any)=>{
+        console.log(res)
+        Gfss.download( 'a9bfcce8-75b8-45a7-b61a-e6742b21f52f').then((res:any)=>{console.log(res)}).catch((err:any)=>{
+            console.log(err)
+        })
+    }).catch((err:any)=>{
+        console.log(err)
+    })
+    }
+)
 client.on("system.login.error", (e:any)=> console.log(e))
+
+
+
 // 登录
 // client.on("system.login.captcha", () => {
 //     process.stdin.once("data", input => {
@@ -87,6 +104,7 @@ client.on("request", (data:any) => console.log(data));
 client.on("notice", (data:any) => console.log(data));
 
 
+// client.acquireGfs(830448115)
 /**
  * 逆天邪神聊接收回复处理
  * @param data
@@ -278,8 +296,22 @@ client.on("notice", (data:any) => console.log(data));
             ])
             break
         default:
+            try{
+                const Gfss = new oicq.Gfs(client,830448115)
+                Gfss.dir('/',0,100).then((res:any)=>{
+                    client.sendGroupMsg(data.group_id ,res)
+                }).catch((err:any)=>{
+                    client.sendGroupMsg(data.group_id ,err)
+                })
+            }
+            catch(e)
+        {
+            client.sendGroupMsg(data.group_id ,e)
+        }
 
-           client.sendGroupMsg(data.group_id, '嘤嘤嘤～ 今天也是充满希望的一天～')
+
+
+
             break
     }
 }
@@ -325,5 +357,27 @@ router.get('/', async function (req:Request, res:Response, next:NextFunction) {
 
 
 });
+
+
+/**
+ * 离开主页
+ */
+router.get('/close', async function (req:Request, res:Response, next:NextFunction) {
+    try {
+        const ip = getIp.getClientIp(req)
+        client.sendGroupMsg(830448115, [
+            {type:"at",qq:470290171},
+            {type:'text',text:'\n'  +  'ip: ' + ip.replace('::ffff:','') + '访离开了你的主页！'}
+        ])
+        res.send()
+    }
+    catch (e) {
+        res.send()
+    }
+
+
+});
+
+
 
 module.exports = router;
