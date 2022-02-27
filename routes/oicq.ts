@@ -11,8 +11,8 @@ const Iconv = require('iconv-lite');
 const rp = require('request-promise');
 const Log = require('../models/log')
 const getIp = require('../utils/getIp')
-const handleMsg = require('../handleMsg/index')
-const handle = require('../handleMsg/handleBuild')
+const handleMsg = require('../handle/index')
+const handle = require('../handle/build')
 // 群配置
 const qunList =
     defaultConfig.qunList
