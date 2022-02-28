@@ -172,7 +172,9 @@ client.on("notice", (data:any) => console.log(data));
  * @param text
  */
  async function messageProcess1(data:any, text:string) {
-    let str
+    let str;
+	let packageParam;
+	let packAddress;
     text = text.replace(/^\s*|\s*$/g,"");
     if(text.includes('指令pull')){
         str = text.replace('指令pull','')
@@ -206,12 +208,14 @@ client.on("notice", (data:any) => console.log(data));
     }
     else if(text.includes('build')){
         str = text.replace('build','')
-        str = str.replace(/^\s*|\s*$/g,"");
-        handle.getUrl(client, data,str)
+        str = str.replace(/^\s*|\s*$/g,"").split(' ');
+        packAddress = '../' + str[0] + '/publish/xgpack/android/'   //打包项目地址参数.......
+		packageParam = str[1];  //出包参数.......
+        handle.getUrl(client, data, packageParam, packAddress)
 
     }
 
-     str = text.replace(/^\s*|\s*$/g,"");
+    str = text.replace(/^\s*|\s*$/g,"");
 
     switch (str) {
         case "查询":
@@ -226,7 +230,7 @@ client.on("notice", (data:any) => console.log(data));
 
 
             let handleLogs = logs.map((item:any,index:number)=>{
-                let str =     JSON.stringify( {
+                let str = JSON.stringify( {
                     index,
                     '访问者ip':item.ip.replace('::ffff:',''),
                     '访问时间':new Date(item.createdAt).toLocaleString()

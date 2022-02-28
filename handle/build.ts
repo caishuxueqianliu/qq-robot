@@ -9,14 +9,14 @@ const compress = require('../utils/compress')
  * 获取文件url
  * @param client
  * @param data
- * @param str
+ * @param packageParam
+ * @param packAddress
  */
-function getUrl (client:Client, data:any,str:string) {
-
+function getUrl (client:Client, data:any, packageParam:string, packAddress:string) {
     var Gfss = new Gfs(client,data.group_id)
     Gfss.dir('/',0,100).then((res:any)=>{
         let zip = res.filter((item:any)=>{
-            return item.name == str + '.zip'
+            return item.name == packageParam + '.zip'
         })[0] || []
         // TODO 这边需要加一个同名压缩包 取最新 目前是默认第一个
         if(!zip.fid){
@@ -26,7 +26,7 @@ function getUrl (client:Client, data:any,str:string) {
             ])
         }
         // 下载文件
-        downloadZip(client,data,Gfss,zip.fid,str)
+        downloadZip(client, data, Gfss, zip.fid, packageParam, packAddress)
     }).catch((err:any)=>{
         console.log(err)
     })
@@ -40,41 +40,25 @@ function getUrl (client:Client, data:any,str:string) {
  * @param data
  * @param Gfss
  * @param fid
- * @param str
+ * @param packageParam
+ * @param packAddress
  */
 
-function downloadZip(client:Client,data:any,Gfss:Gfs,fid:string,str:string){
+function downloadZip(client:Client, data:any, Gfss:Gfs, fid:string, packageParam:string, packAddress:string){
     // TODO  暂时指定下载目录为assets下 后期自己调整
     let downloadPath = './assets/'
     Gfss.download(fid).then(async (res:any)=>{
         let d = await download(res.url)
-        await fs.promises.writeFile(downloadPath + str + '.zip',d)
+        await fs.promises.writeFile(downloadPath + packageParam + '.zip', d)
         // client.sendGroupMsg(data.group_id, [
             // {type:"at",qq:data.sender.user_id},
             // {type:'text',text:'\n'  +  '下载地址'},
             // {type:'text',text:'\n'  +  res.url}
         // ])
-        unzip(client,data,downloadPath,str+'.zip')
+        await compress.unzip(downloadPath + packageParam + '.zip', packageParam, packAddress, data, client)
     }).catch((err:any)=>{
         console.log(err)
     })
-}
-
-
-/**
- * 解压缩
- * @param client
- * @param data
- * @param downloadPath
- * @param zipName
- */
-
-async function unzip(client:Client,data:any,downloadPath:string,zipName:string){
-    await compress.unzip(downloadPath+zipName,downloadPath)
-    client.sendGroupMsg(data.group_id, [
-    {type:"at",qq:data.sender.user_id},
-    {type:'text',text:'\n'  +  '解压成功'},
-    ])
 }
 
 module.exports = {getUrl}

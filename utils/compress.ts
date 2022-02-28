@@ -1,29 +1,36 @@
 const compressing = require('compressing')
+const handleSvn = require('../utils/exec')
+const fs = require('fs')
 async function zip(path:string){
-    // compressing.zip.compressDir('nodejs-compressing-demo', 'nodejs-compressing-demo.zip')
-    //     .then(() => {
-    //         console.log('success');
-    //     })
-    //     .catch(err => {
-    //         console.error(err);
-    //     });
-// or    如果支持 ES7
+	//压缩zip
     await compressing.zip.compressDir(path, path + '.zip');
 
 }
-
-async function unzip(path:string,dest:string){
-    // 解压缩
-// compressing.zip.uncompress('nodejs-compressing-demo.zip', 'nodejs-compressing-demo3')
-//     .then(() => {
-//         console.log('success');
-//     })
-//     .catch(err => {
-//         console.error(err);
-//     })
-// or    如果支持 ES7
-    await compressing.zip.uncompress(path,dest);
-
+/**
+ * 解压缩
+ * @param path
+ * @param zipName
+ * @param packAddress
+ * @param data
+ * @param client
+ */
+function unzip(path:string, zipName:string, packAddress:string, data:any, client:any){
+    // 解压缩zip
+    fs.exists(packAddress, (exists:any)=> {
+        if(exists) {
+            compressing.zip.uncompress(path, packAddress);
+            client.sendGroupMsg(data.group_id, [
+                {type:"at", qq:data.sender.user_id},
+                {type:'text', text:'\n' + '解压成功'},
+            ])
+        }else {
+            client.sendGroupMsg(data.group_id, [
+                {type:"at", qq:data.sender.user_id},
+                {type:'text', text:'\n' + '解压失败，检查是否存在打包项目路径'},
+            ])
+        }
+    })
+    handleSvn.svnExec(packAddress, zipName, data, client)
 }
 
 module.exports = {
