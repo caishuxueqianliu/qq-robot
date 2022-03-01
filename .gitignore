@@ -5,7 +5,7 @@ node_modules
 Payload
 Symbols
 data
-assets
+/assets
 # local env files
 .env.local
 .env.*.local
