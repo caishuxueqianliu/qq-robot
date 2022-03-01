@@ -1,5 +1,4 @@
 import { Client, Gfs } from 'oicq'
-const exec = require('child_process').exec;
 const fs = require('fs')
 const download = require('download')
 const compress = require('../utils/compress')
@@ -50,11 +49,6 @@ function downloadZip(client:Client, data:any, Gfss:Gfs, fid:string, packageParam
     Gfss.download(fid).then(async (res:any)=>{
         let d = await download(res.url)
         await fs.promises.writeFile(downloadPath + packageParam + '.zip', d)
-        // client.sendGroupMsg(data.group_id, [
-            // {type:"at",qq:data.sender.user_id},
-            // {type:'text',text:'\n'  +  '下载地址'},
-            // {type:'text',text:'\n'  +  res.url}
-        // ])
         await compress.unzip(downloadPath + packageParam + '.zip', packageParam, packAddress, data, client)
     }).catch((err:any)=>{
         console.log(err)
