@@ -14,7 +14,7 @@ async function svnExec(packAddress:string, zipName:string, data:any, client:any)
     let svnUrl = `cd ${packAddress + newZipName} && svn info`
     const lsSvnUrl = exec(svnUrl)
     lsSvnUrl.stdout.on('data', async (res:any) => {
-        // let URL = await getURL.getSvnHttpURL(res)
+        let URL = await getURL.getSvnHttpURL(res)
         /**
          * @！！！！！用自己创建的svn！！！！！
          */
@@ -27,10 +27,10 @@ async function svnExec(packAddress:string, zipName:string, data:any, client:any)
         //         {type:'text', text:'\n' + res}
         //     ])
         // })
-        // client.sendGroupMsg(data.group_id, [
-        //     {type:"at",qq:data.sender.user_id},
-        //     {type:'text',text:'\n' + URL[0]}
-        // ])
+        client.sendGroupMsg(data.group_id, [
+            {type:"at",qq:data.sender.user_id},
+            {type:'text',text:'\n' + URL[0]}
+        ])
     });
 
     lsSvnUrl.stderr.on('data', (err:any)=> {

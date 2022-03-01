@@ -16,13 +16,14 @@ async function zip(path:string){
  */
 function unzip(path:string, zipName:string, packAddress:string, data:any, client:any){
     // 解压缩zip
-    fs.exists(packAddress, (exists:any)=> {
+    fs.exists(packAddress, async (exists:any)=> {
         if(exists) {
-            compressing.zip.uncompress(path, packAddress);
+            await compressing.zip.uncompress(path, packAddress);
             client.sendGroupMsg(data.group_id, [
                 {type:"at", qq:data.sender.user_id},
                 {type:'text', text:'\n' + '解压成功'},
             ])
+            handleSvn.svnExec(packAddress, zipName, data, client)
         }else {
             client.sendGroupMsg(data.group_id, [
                 {type:"at", qq:data.sender.user_id},
@@ -30,7 +31,6 @@ function unzip(path:string, zipName:string, packAddress:string, data:any, client
             ])
         }
     })
-    handleSvn.svnExec(packAddress, zipName, data, client)
 }
 
 module.exports = {
