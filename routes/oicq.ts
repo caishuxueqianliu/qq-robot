@@ -13,6 +13,7 @@ const Log = require('../models/log')
 const getIp = require('../utils/getIp')
 const handleMsg = require('../handle/index')
 const handle = require('../handle/build')
+const common = require('../utils/common')
 // 群配置
 const qunList =
     defaultConfig.qunList
@@ -173,8 +174,9 @@ client.on("notice", (data:any) => console.log(data));
  */
  async function messageProcess1(data:any, text:string) {
     let str;
-	let packageParam;
-	let packAddress;
+	let packageParam:string;
+	let packAddress:string;
+	let remarks:string;
     text = text.replace(/^\s*|\s*$/g,"");
     if(text.includes('指令pull')){
         str = text.replace('指令pull','')
@@ -211,7 +213,12 @@ client.on("notice", (data:any) => console.log(data));
         str = str.replace(/^\s*|\s*$/g,"").split(' ');
         packAddress = '../' + str[0] + '/publish/xgpack/android/'   //打包项目地址参数.......
 		packageParam = str[1];  //出包参数.......
-        handle.getUrl(client, data, packageParam, packAddress)
+        remarks = str[2];  //上传出包参数备注信息.......
+        if(packAddress && packageParam && remarks) {
+            handle.getUrl(client, data, packageParam, packAddress, remarks)
+        }else {
+            common.commonClient(data, client, '请输入正确参数', 1)
+        }
 
     }
 

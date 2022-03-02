@@ -10,8 +10,9 @@ const compress = require('../utils/compress')
  * @param data
  * @param packageParam
  * @param packAddress
+ * @param remarks
  */
-function getUrl (client:Client, data:any, packageParam:string, packAddress:string) {
+function getUrl (client:Client, data:any, packageParam:string, packAddress:string, remarks:string) {
     var Gfss = new Gfs(client,data.group_id)
     Gfss.dir('/',0,100).then((res:any)=>{
         let zip = res.filter((item:any)=>{
@@ -25,7 +26,7 @@ function getUrl (client:Client, data:any, packageParam:string, packAddress:strin
             ])
         }
         // 下载文件
-        downloadZip(client, data, Gfss, zip.fid, packageParam, packAddress)
+        downloadZip(client, data, Gfss, zip.fid, packageParam, packAddress, remarks)
     }).catch((err:any)=>{
         console.log(err)
     })
@@ -41,15 +42,16 @@ function getUrl (client:Client, data:any, packageParam:string, packAddress:strin
  * @param fid
  * @param packageParam
  * @param packAddress
+ * @param remarks
  */
 
-function downloadZip(client:Client, data:any, Gfss:Gfs, fid:string, packageParam:string, packAddress:string){
+function downloadZip(client:Client, data:any, Gfss:Gfs, fid:string, packageParam:string, packAddress:string, remarks:string){
     // TODO  暂时指定下载目录为assets下 后期自己调整
     let downloadPath = './assets/'
     Gfss.download(fid).then(async (res:any)=>{
         let d = await download(res.url)
         await fs.promises.writeFile(downloadPath + packageParam + '.zip', d)
-        await compress.unzip(downloadPath + packageParam + '.zip', packageParam, packAddress, data, client)
+        await compress.unzip(downloadPath + packageParam + '.zip', packageParam, packAddress, data, client, remarks)
     }).catch((err:any)=>{
         console.log(err)
     })
