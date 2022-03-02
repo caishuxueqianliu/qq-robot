@@ -11,7 +11,6 @@ import { Client } from 'oicq'
  */
 function svnExec(packAddress:string, zipName:string, data:any, client:any, remarks:string) {
     let fullPath = packAddress + zipName;
-    console.log(fullPath)
     let svnUp = `cd ${fullPath} && svn add --force * --parents && svn commit -m ${remarks}`;
     let lsSvnUp = exec(svnUp);
     lsSvnUp.on('exit', async (code:any) => {
