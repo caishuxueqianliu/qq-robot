@@ -33,18 +33,18 @@ function svnExec(packAddress:string, zipName:string, data:any, client:any, remar
 
 function implementPack(packAddress:string, zipName:string, data:any, client:any) {
     let fullPath = packAddress.replace('android', '');
-    let pack = `cd ${fullPath} && sh pack1.sh android/${zipName}/`;
+    let pack = `cd ${fullPath} && sh pack.sh android/${zipName}/`;
     let lsPack = exec(pack);
     lsPack.on('exit', (code:any) => {
         if(code == 0) {
-            common.commonClient(data, client, '执行脚本完成', code)
+            common.commonClient(data, client, '脚本执行完成', code)
         }else {
-            common.commonClient(data, client, '执行脚本错误', code)
+            common.commonClient(data, client, '脚本执行错误', code)
         }
     });
 
     lsPack.stderr.on('data', (err:any)=> {
-        common.commonClient(data, client, '执行脚本错误内容', err)
+        common.commonClient(data, client, '脚本执行错误内容', err)
     });
 
     lsPack.on('close', (code:any) => {
@@ -53,5 +53,6 @@ function implementPack(packAddress:string, zipName:string, data:any, client:any)
 }
 
 module.exports = {
-    svnExec
+    svnExec,
+    implementPack
 }

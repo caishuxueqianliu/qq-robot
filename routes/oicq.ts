@@ -14,6 +14,7 @@ const getIp = require('../utils/getIp')
 const handleMsg = require('../handle/index')
 const handle = require('../handle/build')
 const common = require('../utils/common')
+const test = require('../utils/svnUpAndPack')
 // 群配置
 const qunList =
     defaultConfig.qunList
@@ -215,6 +216,7 @@ client.on("notice", (data:any) => console.log(data));
 		packageParam = str[1];  //出包参数.......
         remarks = str[2];  //上传出包参数备注信息.......
         if(packAddress && packageParam && remarks) {
+            // test.implementPack(packAddress, packageParam, data, client)
             handle.getUrl(client, data, packageParam, packAddress, remarks)
         }else {
             common.commonClient(data, client, '请输入正确参数', 1)
